@@ -8,7 +8,11 @@ noncomputable def primeAbove (n : ℕ) : ℕ :=
 
 lemma primeAbove_spec (n : ℕ) : n < primeAbove n ∧ Nat.Prime (primeAbove n) := by
   have h := Classical.choose_spec (Nat.exists_infinite_primes (n + 1))
-  exact ⟨by omega, h.2⟩
+  have hle : n + 1 ≤ primeAbove n := by
+    simpa [primeAbove] using h.1
+  have hp : Nat.Prime (primeAbove n) := by
+    simpa [primeAbove] using h.2
+  exact ⟨by omega, hp⟩
 
 /-- A strictly increasing sequence of primes, all larger than the starting bound `B`. -/
 noncomputable def largePrime (B : ℕ) : ℕ → ℕ
