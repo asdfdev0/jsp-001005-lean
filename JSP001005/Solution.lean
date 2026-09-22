@@ -41,14 +41,15 @@ def CoversInitial (N : ℕ) (p a : Fin N → ℕ) : Prop :=
   ∀ m : ℕ, 1 ≤ m → m ≤ N → ∃ i : Fin N, m % p i = a i % p i
 
 /-- Robust literal reading of JSP-001005: one uniform reciprocal-sum bound works for
-arbitrarily long initial intervals, using distinct prime moduli.  Deliberately absent is the
-historical Erdős #1200 restriction that every modulus prime must itself be below the interval
-endpoint. -/
+arbitrarily long initial intervals, using distinct prime moduli that are all strictly larger
+than the interval endpoint.  This makes explicit that the construction uses exactly the side
+of the modulus-size condition that the historical Erdős #1200 formulation forbids. -/
 def HasUniformPrimeResidueCover : Prop :=
   ∃ C : ℚ, 0 < C ∧ ∀ N : ℕ, 1 ≤ N →
     ∃ p a : Fin N → ℕ,
       Function.Injective p ∧
       (∀ i, Nat.Prime (p i)) ∧
+      (∀ i, N < p i) ∧
       CoversInitial N p a ∧
       (∑ i : Fin N, (1 : ℚ) / (p i : ℚ)) ≤ C
 
@@ -60,12 +61,14 @@ theorem jsp_001005_literal : HasUniformPrimeResidueCover := by
   intro N hN
   let p : Fin N → ℕ := fun i => largePrime N i.val
   let a : Fin N → ℕ := fun i => i.val + 1
-  refine ⟨p, a, ?_, ?_, ?_, ?_⟩
+  refine ⟨p, a, ?_, ?_, ?_, ?_, ?_⟩
   · intro i j hij
     apply Fin.ext
     exact (largePrime_strictMono N).injective hij
   · intro i
     exact largePrime_prime N i.val
+  · intro i
+    exact largePrime_gt_base N i.val
   · intro m hm1 hmN
     have hmN' : m - 1 < N := by omega
     let i : Fin N := ⟨m - 1, hmN'⟩
